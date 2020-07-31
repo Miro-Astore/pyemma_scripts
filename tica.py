@@ -1,7 +1,7 @@
 #import pyemma.coordinates
 import pyemma
 import numpy as np
-%pylab inline
+from pylab import *
 matplotlib.rcParams.update({'font.size': 14})
 
 
@@ -24,14 +24,17 @@ def project_and_cluster(trajfiles, featurizer, sparsify=False, tica=True, lag=10
         X = remove_constant(X)
     if tica:
         trans_obj = coor.tica(X, lag=lag, var_cutoff=var_cutoff)
+        Y = trans_obj.get_output()
     else:
         trans_obj = coor.pca(X, dim=-1, var_cutoff=var_cutoff)
         Y = trans_obj.get_output()
     if scale:
         for y in Y:
             y *= trans_obj.eigenvalues[:trans_obj.dimension()]
-    cl_obj = coor.cluster_kmeans(Y, k=ncluster, max_iter=3, fixed_seed=True)
-    return trans_obj, Y, cl_obj
+    if cluster:
+        cl_obj = coor.cluster_kmeans(Y, k=ncluster, max_iter=3, fixed_seed=True)
+        return trans_obj, Y, cl_obj
+    return trans_obj, Y
 
 def eval_transformer(trans_obj):
     # Effective dimension (Really? If we just underestimate the Eigenvalues this value also shrinks...))
@@ -85,13 +88,21 @@ def plot_map(Y, sx=None, sy=None, tickspacing1=1.0, tickspacing2=1.0, timestep=1
 
 #feat=pyemma.coordinates.featurizer('prot.pdb')
 
+top = 'prot.pdb'
+trajs = 'out.xtc'
+
 feat_Ca = coor.featurizer(top)
-feat_Ca.add_all()
+feat_Ca.add_selection(feat_Ca.select ('name CA'))
 print(feat_Ca.dimension())
-tica_Ca, tica_Y_Ca, tica_cl_Ca = project_and_cluster(trajs, feat_Ca)
+cluster = False
+if cluster:
+    tica_Ca, tica_Y_Ca, tica_cl_Ca = project_and_cluster(trajs, feat_Ca)
+else:
+    tica_Ca, tica_Y_Ca = project_and_cluster(trajs, feat_Ca)
+np.save('tica_mat.npy',tica_Y_Ca)
 eval_transformer(tica_Ca)
-pca_Ca, pca_Y_Ca, pca_cl_Ca = project_and_cluster(trajs, feat_Ca, tica=False)
-eval_transformer(pca_Ca)
+#pca_Ca, pca_Y_Ca, pca_cl_Ca = project_and_cluster(trajs, feat_Ca, tica=False)
+#eval_transformer(pca_Ca)
 
 #feat.add_distances_ca()
 #reader=pyemma.coordinates.source(['prot.xtc'],features=feat)

@@ -1,0 +1,9 @@
+*xtc
+*pdb
+*psf
+*dat 
+*npy
+*pbs.e*
+*pbs.o*
+mdanalysis_scripts
+gromacs_scripts

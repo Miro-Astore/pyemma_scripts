@@ -1,0 +1,16 @@
+#!/bin/bash
+#PBS -P f91
+#PBS -l ncpus=12
+#PBS -l storage=scratch/f91
+#PBS -m abe
+#PBS -l walltime=12:00:00
+#PBS -l mem=32GB
+#PBS -l wd
+#PBS -M yearlyboozefest@gmail.com
+pwd
+cd $PBS_O_WORKDIR
+
+source $HOME/.bashrc
+
+#vmd -dispdev text -e loadMovieFrames.tcl
+python tica.py
