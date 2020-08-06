@@ -2,6 +2,7 @@
 import pyemma
 import numpy as np
 from pylab import *
+import pdb
 matplotlib.rcParams.update({'font.size': 14})
 
 
@@ -12,7 +13,7 @@ import pyemma.plots as mplt
 pyemma.config.show_progress_bars = 'True'
 
 
-def project_and_cluster(trajfiles, featurizer, sparsify=False, tica=True, lag=100, scale=True, var_cutoff=0.95, ncluster=100):
+def project_and_cluster(trajfiles, featurizer, sparsify=False, tica=True, lag=100, scale=True, var_cutoff=1.0 , ncluster=100):
     """
     Returns
     -------
@@ -88,8 +89,8 @@ def plot_map(Y, sx=None, sy=None, tickspacing1=1.0, tickspacing2=1.0, timestep=1
 
 #feat=pyemma.coordinates.featurizer('prot.pdb')
 
-top = 'prot.pdb'
-trajs = 'out.xtc'
+top = 'bpti_prot.pdb'
+trajs = 'rmsfit.dcd'
 
 feat_Ca = coor.featurizer(top)
 feat_Ca.add_selection(feat_Ca.select ('name CA'))
@@ -99,8 +100,19 @@ if cluster:
     tica_Ca, tica_Y_Ca, tica_cl_Ca = project_and_cluster(trajs, feat_Ca)
 else:
     tica_Ca, tica_Y_Ca = project_and_cluster(trajs, feat_Ca)
-np.save('tica_mat.npy',tica_Y_Ca)
-eval_transformer(tica_Ca)
+    #tica_Ca, tica_Y_Ca = project_and_cluster(trajs, feat_Ca,tica=False)
+    #tica_Ca, tica_Y_Ca = project_and_cluster(trajs, feat_Ca)
+print(np.shape(tica_Ca.eigenvectors))
+x=(tica_Ca.get_params())
+#pdb.set_trace()
+np.save('tica_eigvec.npy',tica_Ca.eigenvectors)
+np.save('tica_eigval.npy',tica_Ca.eigenvalues)
+#print('feat_means.npy',tica_Ca.get_params().keys())
+#print('feat_means.npy',tica_Ca.get_params()['mean'])
+#pdb.set_trace()
+#np.save('feat_means.npy',tica_Ca.get_params()['mean'])
+#eval_transformer(tica_Ca)
+#pdb.set_trace()
 #pca_Ca, pca_Y_Ca, pca_cl_Ca = project_and_cluster(trajs, feat_Ca, tica=False)
 #eval_transformer(pca_Ca)
 
@@ -110,3 +122,6 @@ eval_transformer(tica_Ca)
 #print (tic)
 #np.savetxt('tica.dat',tic)
 #
+plot_map(tica_Y_Ca, tickspacing1=2.0, tickspacing2=1.0, timestep=0.01, timeunit='$\mu$s')
+gcf().suptitle('TICA ', fontsize=20)
+savefig('./figs/tica_'.replace(' ','_') + '.png', bbox_inches='tight')
