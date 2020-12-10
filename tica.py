@@ -89,7 +89,6 @@ def plot_map(Y, sx=None, sy=None, tickspacing1=1.0, tickspacing2=1.0, timestep=1
 
 #feat=pyemma.coordinates.featurizer('prot.pdb')
 
-
 top = '/scratch/f91/ma2374/vsite_CFTR/wt/310K/combined_pca_analysis/cov-domain-average.pdb'
 #trajs = ['/scratch/f91/ma2374/vsite_CFTR/wt/310K/1/wt_ca.xtc','/scratch/f91/ma2374/vsite_CFTR/wt/310K/2/wt_ca.xtc','/scratch/f91/ma2374/vsite_CFTR/wt/310K/3/wt_ca.xtc','/scratch/f91/ma2374/vsite_CFTR/wt/310K/combined_pca_analysis/aa_wt_ca.xtc']
 trajs = ['/scratch/f91/ma2374/vsite_CFTR/wt/310K/1/wt_ca_domain.xtc','/scratch/f91/ma2374/vsite_CFTR/wt/310K/2/wt_ca_domain.xtc','/scratch/f91/ma2374/vsite_CFTR/wt/310K/3/wt_ca_domain.xtc','/scratch/f91/ma2374/vsite_CFTR/wt/310K/combined_pca_analysis/aa_wt_ca_domain.xtc']
@@ -102,6 +101,7 @@ if cluster:
     tica_Ca, tica_Y_Ca, tica_cl_Ca = project_and_cluster(trajs, feat_Ca)
 else:
     tica_Ca, tica_Y_Ca = project_and_cluster(trajs, feat_Ca)
+    #tica_Ca, tica_Y_Ca = project_and_cluster(trajs, feat_Ca,tica=False)
     #tica_Ca, tica_Y_Ca = project_and_cluster(trajs, feat_Ca)
 print(np.shape(tica_Ca.eigenvectors))
 x=(tica_Ca.get_params())
@@ -109,6 +109,8 @@ x=(tica_Ca.get_params())
 np.save('tica_eigvec.npy',tica_Ca.eigenvectors)
 np.save('tica_eigval.npy',tica_Ca.eigenvalues)
 print('feat_means.npy',tica_Ca.get_params().keys())
+#print('feat_means.npy',tica_Ca.get_params().keys())
+#print('feat_means.npy',tica_Ca.get_params()['mean'])
 #pdb.set_trace()
 #np.save('feat_means.npy',tica_Ca.get_params()['mean'])
 #eval_transformer(tica_Ca)
@@ -122,3 +124,6 @@ tic = pyemma.coordinates.tica(reader,lag=2,dim=1,chunksize=1,ncov_max=1).get_out
 print (tic)
 np.savetxt('tica.dat',tic)
 #
+plot_map(tica_Y_Ca, tickspacing1=2.0, tickspacing2=1.0, timestep=0.01, timeunit='$\mu$s')
+gcf().suptitle('TICA ', fontsize=20)
+savefig('./figs/tica_'.replace(' ','_') + '.png', bbox_inches='tight')
